@@ -38,8 +38,34 @@ async def add_song_to_playlist(song_url, playlist_id):
     track_id = song_id.split(':')[2]
     track = sp.track(track_id)
     track_name = track['name']
+    artist_name = track['artists'][0]['name']
     print(track_name)
-    return track_name
+    return f"{track_name} by {artist_name}"
+
+async def search_and_add_song(song_name, playlist_id):
+    auth = SpotifyOAuth(
+        client_id=SPOTIFYID,
+        client_secret=SPOTIFYSECRET,
+        redirect_uri='http://127.0.0.1:8888/callback',
+        scope='playlist-modify-public'
+    )
+    token_info = auth.refresh_access_token(REFRESH_TOKEN)
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+
+    results = sp.search(q=song_name, limit=1, type='track')
+    tracks = results['tracks']['items']
+
+    if not tracks:
+        return None
+
+    track = tracks[0]
+    track_name = track['name']
+    artist_name = track['artists'][0]['name']
+    song_id = "spotify:track:" + track['id']
+
+    sp.playlist_add_items(playlist_id=PLAYLISTID, items=[song_id], position=None)
+
+    return f"{track_name} by {artist_name}"
 
 @client.event
 async def on_ready():
@@ -62,6 +88,27 @@ async def on_message(message):
         )
         embed.set_footer(text="Add songs by pasting a Spotify track link in this channel")
         await message.channel.send(embed=embed)
+
+    if message.content.startswith('!add '):
+        song_name = message.content[5:]
+        result = await search_and_add_song(song_name, PLAYLISTID)
+        try:
+            await message.delete()
+        except discord.Forbidden:
+            print("Missing permissions to delete message")
+        except discord.HTTPException as e:
+            print(f"Failed to delete message: {e}")
+        if result:
+            embed = discord.Embed(
+                title=f"Adding '{result}' to the playlist!",
+                color=0x1DB954
+            )
+        else:
+            embed = discord.Embed(
+                title="Song not found on Spotify!",
+                color=0xFF0000
+            )
+        await message.channel.send(embed=embed, delete_after=10)
 
     if message.content.startswith('https://open.spotify.com/track/'):
         track_name = await add_song_to_playlist(message.content, PLAYLISTID)
