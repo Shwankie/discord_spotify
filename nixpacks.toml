@@ -1,5 +1,0 @@
-[phases.install]
-cmds = ["pip install discord.py spotipy python-dotenv requests"]
-
-[start]
-cmd = "python main.py"
