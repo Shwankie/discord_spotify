@@ -70,6 +70,6 @@ async def on_message(message):
             title=f"Adding '{track_name}' to the playlist!",
             color=0x1DB954
         )
-        await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed, delete_after=10)
 
 client.run(TOKEN)
