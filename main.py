@@ -22,31 +22,29 @@ client = discord.Client(intents=intents)
 
 
 async def add_song_to_playlist(song_url, playlist_id):
-    # Replace <client_id> and <client_secret> with your own Spotify API credentials
-    auth = SpotifyOAuth(client_id=SPOTIFYID,
-                         client_secret=SPOTIFYSECRET,
-                         redirect_uri='http://127.0.0.1:8888/callback',
-                         scope=['playlist-modify-public'])
-    sp = spotipy.Spotify(auth_manager=auth)
+    auth = SpotifyOAuth(
+        client_id=SPOTIFYID,
+        client_secret=SPOTIFYSECRET,
+        redirect_uri='http://127.0.0.1:8888/callback',
+        scope='playlist-modify-public'
+    )
+    
+    REFRESH_TOKEN = os.getenv('SPOTIFY_REFRESH_TOKEN')
+    token_info = auth.refresh_access_token(REFRESH_TOKEN)
+    sp = spotipy.Spotify(auth=token_info['access_token'])
 
-    # Extract the song id from the song url
     song_id = song_url.split('track/')[1]
     song_id = song_id.split('?')[0]
     song_id = ("spotify:track:" + song_id)
     print(song_id)
 
-    # Add the song to the playlist
-    # await asyncio.sleep(0)
     sp.playlist_add_items(playlist_id=PLAYLISTID, items=[song_id], position=None)
 
-    # Getting the song name for message formatting
     track_id = song_id.split(':')[2]
     track = sp.track(track_id)
     track_name = track['name']
     print(track_name)
     return track_name
-
-
 
 
 @client.event
