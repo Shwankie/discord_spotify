@@ -64,12 +64,18 @@ async def on_message(message):
         embed.set_footer(text="Add songs by pasting a Spotify track link in this channel")
         await message.channel.send(embed=embed)
 
-    if message.content.startswith('https://open.spotify.com/track/'):
-        track_name = await add_song_to_playlist(message.content, PLAYLISTID)
-        embed = discord.Embed(
-            title=f"Adding '{track_name}' to the playlist!",
-            color=0x1DB954
-        )
-        await message.channel.send(embed=embed, delete_after=10)
+if message.content.startswith('https://open.spotify.com/track/'):
+    track_name = await add_song_to_playlist(message.content, PLAYLISTID)
+    try:
+        await message.delete()
+    except discord.Forbidden:
+        print("Missing permissions to delete message")
+    except discord.HTTPException as e:
+        print(f"Failed to delete message: {e}")
+    embed = discord.Embed(
+        title=f"Adding '{track_name}' to the playlist!",
+        color=0x1DB954
+    )
+    await message.channel.send(embed=embed, delete_after=10)
 
 client.run(TOKEN)
