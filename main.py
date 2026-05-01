@@ -87,6 +87,7 @@ async def on_message(message):
         embed.add_field(name="!next", value="Skips to the next track on Spotify", inline=False)
         embed.add_field(name="!back", value="Goes back to the previous track on Spotify", inline=False)
         embed.add_field(name="!playlist", value="Shows the link to the server playlist", inline=False)
+        embed.add_field(name="!upcoming", value="Shows the next 5 songs in the playlist", inline=False)
         embed.add_field(name="!playlist stats", value="Shows the number of songs and total duration", inline=False)
         embed.add_field(name="!add [song name]", value="Adds a song to the playlist by name", inline=False)
         embed.add_field(name="!queue [song name]", value="Adds a song to the top of the playlist", inline=False)
@@ -115,17 +116,7 @@ async def on_message(message):
         
     # !playlist or !playlist stats
     elif message.content == '!playlist':
-        embed = discord.Embed(
-            title="Our Server Playlist 🎵",
-            description="Click below to open and add songs!",
-            color=0x1DB954
-        )
-        embed.add_field(
-            name="Open Playlist",
-            value=f"[Click here to open on Spotify]({PLAYLIST_URL})"
-        )
-        embed.set_footer(text="Add songs by pasting a Spotify track link or using !add")
-        await message.channel.send(embed=embed)
+        await message.channel.send(f"🎵 **Our Server Playlist:**\nhttps://open.spotify.com/playlist/0eLWLQj1sKm3KZjY9x14ZC")
 
     elif message.content == '!playlist stats':
         sp = get_spotify()
@@ -142,6 +133,28 @@ async def on_message(message):
         )
         embed.add_field(name="Total Songs", value=str(total_songs), inline=True)
         embed.add_field(name="Total Duration", value=f"{hours}h {minutes}m", inline=True)
+        await message.channel.send(embed=embed)
+
+    # !upcoming
+    elif message.content == '!upcoming':
+        sp = get_spotify()
+        playlist = sp.playlist(PLAYLISTID)
+        tracks = playlist['tracks']['items']
+        if not tracks:
+            embed = discord.Embed(title="The playlist is empty!", color=0xFF0000)
+        else:
+            upcoming = tracks[:5]
+            description = ""
+            for i, item in enumerate(upcoming):
+                track = item['track']
+                track_name = track['name']
+                artist_name = track['artists'][0]['name']
+                description += f"{i+1}. {track_name} — {artist_name}\n"
+            embed = discord.Embed(
+                title="🎵 Up Next in the Playlist",
+                description=description,
+                color=0x1DB954
+            )
         await message.channel.send(embed=embed)
 
     # !add [song name]
