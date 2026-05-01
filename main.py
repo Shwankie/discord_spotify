@@ -84,6 +84,8 @@ async def on_message(message):
             description="Here are all the available commands:",
             color=0x1DB954
         )
+        embed.add_field(name="!next", value="Skips to the next track on Spotify", inline=False)
+        embed.add_field(name="!back", value="Goes back to the previous track on Spotify", inline=False)
         embed.add_field(name="!playlist", value="Shows the link to the server playlist", inline=False)
         embed.add_field(name="!playlist stats", value="Shows the number of songs and total duration", inline=False)
         embed.add_field(name="!add [song name]", value="Adds a song to the playlist by name", inline=False)
@@ -97,6 +99,20 @@ async def on_message(message):
         embed.add_field(name="Spotify link", value="Paste any Spotify track link to add it directly", inline=False)
         await message.channel.send(embed=embed)
 
+    # !next
+    elif message.content == '!next':
+        sp = get_spotify()
+        sp.next_track()
+        embed = discord.Embed(title="⏭️ Skipped to next track!", color=0x1DB954)
+        await message.channel.send(embed=embed, delete_after=10)
+
+    # !back
+    elif message.content == '!back':
+        sp = get_spotify()
+        sp.previous_track()
+        embed = discord.Embed(title="⏮️ Going back to previous track!", color=0x1DB954)
+        await message.channel.send(embed=embed, delete_after=10)
+        
     # !playlist or !playlist stats
     elif message.content == '!playlist':
         embed = discord.Embed(
