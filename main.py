@@ -172,9 +172,21 @@ async def on_message(message):
     elif message.content.startswith('!queue '):
         song_name = message.content[7:]
         await delete_user_message()
-        result = await search_and_add_song(song_name, position=0)
-        if result:
-            embed = discord.Embed(title=f"Added '{result}' to the top of the playlist!", color=0x1DB954)
+        sp = get_spotify()
+        results = sp.search(q=song_name, limit=1, type='track')
+        tracks = results['tracks']['items']
+        if tracks:
+            track = tracks[0]
+            track_name = track['name']
+            artist_name = track['artists'][0]['name']
+            song_id = "spotify:track:" + track['id']
+            sp.playlist_add_items(playlist_id=PLAYLISTID, items=[song_id], position=0)
+            try:
+                sp.add_to_queue(song_id)
+            except Exception as e:
+                print(f"Could not add to playback queue: {e}")
+            song_history.append(f"{track_name} by {artist_name}")
+            embed = discord.Embed(title=f"⏭️ Queued '{track_name} by {artist_name}' to play next!", color=0x1DB954)
         else:
             embed = discord.Embed(title="Song not found on Spotify!", color=0xFF0000)
         await message.channel.send(embed=embed, delete_after=10)
