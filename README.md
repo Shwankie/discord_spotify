@@ -15,3 +15,7 @@ You will need to create a bot/application in discord, give it the following perm
 - "Embed Links"
 
 Copy the invitation URL and invite the bot to your server.
+
+
+Updates:
+2.2.1 - self-release with updated features. Thanks to rundro for base script.
