@@ -15,5 +15,3 @@ You will need to create a bot/application in discord, give it the following perm
 - "Embed Links"
 
 Copy the invitation URL and invite the bot to your server.
-
-I tried to daemonize this but it wasnt working correctly. Instead I just run it in a screen session.
