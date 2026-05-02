@@ -98,7 +98,7 @@ async def on_message(message):
         embed.add_field(name="!np", value="Shows what's currently playing on Spotify", inline=False)
         embed.add_field(name="!history", value="Shows the last 5 songs added this session", inline=False)
         embed.add_field(name="Spotify link", value="Paste any Spotify track link to add it directly", inline=False)
-        await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed, delete_after=60)
 
     # !next
     elif message.content == '!next':
